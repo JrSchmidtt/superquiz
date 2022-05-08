@@ -22,7 +22,7 @@ app.get("/quiz",(req,res)=>{
 app.post("/sendform",(req,res)=>{
     var titulo = req.body.titulo;
     var descricao = req.body.descricao;
-    res.send("Formulario recebido!");
+    res.send("Formulario recebido!" + titulo + " " + " descricao" + descricao);
 
 })
 
