@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const connection = require('./database/database');
 const Pergunta = require('./database/Pergunta');
 const Resposta = require('./database/Resposta');
+const { get } = require('express/lib/response');
 
 //Database
 
@@ -53,21 +54,39 @@ app.post("/salvarpergunta",(req,res) => {
     })
 });
 
-app.get("/pergunta-:id",(req,res) => {
+app.get("/pergunta-:id", (req, res) =>{
     var id = req.params.id;
     Pergunta.findOne({
         where: {id: id}
     }).then(pergunta => {
-        if(pergunta != undefined){ // Pergunta Encontrada
-            res.render("pergunta",{
-                pergunta: pergunta
+        if (pergunta != undefined){
+            Resposta.findAll({
+                where: {perguntaid: pergunta.id},
+                order: [
+                    ['id','DESC']
+                ]
+            }).then(respostas =>{
+                res.render("pergunta",{
+                    pergunta: pergunta,
+                    respostas: respostas
+                });
             });
-        }else{ // Não encontrada    
-            res.redirect("/");
+        }else{
+            res.redirect('/quiz');
         }
     })
-});
+})
 
+app.post('/responder',(req,res) => {
+    var corpo = req.body.corpo;
+    var perguntaid = req.body.pergunta;
+    Resposta.create({
+        corpo: corpo,
+        perguntaid: perguntaid
+    }).then(() => {
+        res.redirect("/pergunta-"+perguntaid)
+    });
+});
 
 
 
